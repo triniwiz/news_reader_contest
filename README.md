@@ -16,4 +16,11 @@ Here are the parameters:
 - Tell me about it when you're done (@jenlooper)
 - WIN A PRIZE!
 
+### Screenshots
+![android](app/screenshots/ss_feeds_android.png?raw=true)
+
+### TODO
+* Fix feed item title
+* Finish Video support
+* Add feed item loading notification
 
