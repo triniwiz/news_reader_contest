@@ -1,0 +1,26 @@
+﻿.font-awesome{
+     font-family: 'FontAwesome';
+}
+.material-icon{
+   font-family: 'Material-Icons';
+}
+.ionic-icon{
+  font-family: 'Ionicons';
+}
+Actionbar{
+  background-color: #F44336;
+  color:#ffffff;
+}
+
+.feeds-title {
+    font-size: 14;
+    font-weight:bold;
+    padding-left: 5;
+    padding-top: 5;
+}
+.feeds-date{
+    padding-left: 5;
+    padding-bottom: 5;
+}
+
+

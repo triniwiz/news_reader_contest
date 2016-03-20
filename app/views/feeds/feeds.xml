@@ -1,0 +1,28 @@
+<Page xmlns:Card="nativescript-cardview" xmlns:f="fresco/fresco" xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo">
+  <Page.actionBar>
+    <ActionBar title="Feeds" />
+  </Page.actionBar>
+  <GridLayout>
+    <ScrollView>
+      <Repeater items="{{ feeds }}">
+        <Repeater.itemTemplate>
+          <StackLayout tap="goToItem">
+            <Card:CardView margin="10">
+              <GridLayout rows="200, auto, auto" columns="auto, auto, *">
+                <!--<Image src="{{ image}}" stretch="aspectFill" colSpan="3" row="0" />-->
+                <f:FrescoDrawee stretch="aspectFill" colSpan="3" row="0" imageUri="{{image}}" />
+                <Label text="{{ title }}" class="feeds-title" textWrap="true" row="1" colSpan="3" />
+                <StackLayout row="2" orientation="horizontal">
+                  <Label text="{{ lastUpdated | fromNow }}" class="feeds-date" />
+                  <Label text=" | " />
+                  <Label text="{{category.name }}" class="Category" />
+                </StackLayout>
+              </GridLayout>
+            </Card:CardView>
+          </StackLayout>
+        </Repeater.itemTemplate>
+      </Repeater>
+    </ScrollView>
+    <!--<ActivityIndicator busy="{{ isLoading }}" />-->
+  </GridLayout>
+</Page>

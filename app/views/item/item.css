@@ -1,0 +1,35 @@
+
+.Paragraph
+, .List
+, .Header
+, .Crosshead
+, Image
+{
+    margin-bottom: 10;
+}
+
+.Header
+{
+    font-weight: bold;
+    font-size: 18;
+}
+
+.Crosshead
+{
+    font-weight: bold;
+    font-size: 15;
+}
+
+.List
+{
+    margin-left: 18;
+}
+.Container
+{
+    padding-left: 10;
+    padding-right: 10; 
+    padding-top: 5;
+}
+.Video{
+    margin-bottom: 10;
+}

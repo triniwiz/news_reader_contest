@@ -1,0 +1,12 @@
+{
+	"name": "News Reader",
+	"main": "app.js",
+	"version": "1.7.0",
+	"author": {
+		"name": "Osei Fortune",
+		"email": "fortune.osei@yahoo.com"
+	},
+	"android": {
+		"v8Flags": "--expose_gc"
+	}
+}

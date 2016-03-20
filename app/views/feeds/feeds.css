@@ -1,0 +1,16 @@
+.Container
+{
+    margin: 10;
+}
+
+.Title
+{
+    font-size: 18;
+    font-weight: bold;
+}
+
+
+.Category
+{
+    color: #F44336;
+}
