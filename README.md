@@ -20,7 +20,7 @@ Here are the parameters:
 ![android](screenshots/ss_news_android.png?raw=true)
 
 ### TODO
-* Fix feed item title
+* ~~Fix feed item title~~
 * Finish Video support
-* Add feed item loading notification
+* ~~Add feed item loading notification~~
 
