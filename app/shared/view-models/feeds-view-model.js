@@ -15,31 +15,36 @@ var FeedsViewModel = (function (_super) {
     FeedsViewModel.prototype.getNews = function () {
         var _this = this;
         this.set("isLoading", true);
-        http.getJSON('http://trevor-producer-cdn.api.bbci.co.uk/content/cps/news/world')
-            .then(function (response) {
-            var items = response.relations.map(function (item) {
-                var feed = {
-                    id: item.content.id,
-                    title: item.content.shortName,
-                    image: null,
-                    category: null,
-                    lastUpdated: item.content.lastUpdated
-                };
-                item.content.relations.forEach(function (element) {
-                    if (element.primaryType === "bbc.mobile.news.image" && element.secondaryType === "bbc.mobile.news.placement.index") {
-                        feed.image = element.content.href;
-                    }
-                    else if (element.primaryType === "bbc.mobile.news.collection") {
-                        feed.category = {
-                            id: element.content.id,
-                            name: element.content.name
-                        };
-                    }
+        return new Promise(function (resolve, reject) {
+            http.getJSON('http://trevor-producer-cdn.api.bbci.co.uk/content/cps/news/world')
+                .then(function (response) {
+                var items = response.relations.map(function (item) {
+                    var feed = {
+                        id: item.content.id,
+                        title: item.content.shortName,
+                        image: null,
+                        category: null,
+                        lastUpdated: item.content.lastUpdated
+                    };
+                    item.content.relations.forEach(function (element) {
+                        if (element.primaryType === "bbc.mobile.news.image" && element.secondaryType === "bbc.mobile.news.placement.index") {
+                            feed.image = element.content.href;
+                        }
+                        else if (element.primaryType === "bbc.mobile.news.collection") {
+                            feed.category = {
+                                id: element.content.id,
+                                name: element.content.name
+                            };
+                        }
+                    });
+                    return feed;
                 });
-                return feed;
+                resolve();
+                _this.set("feeds", items);
+                _this.set("isLoading", false);
+            }, function (err) {
+                reject(err);
             });
-            _this.set("feeds", items);
-            _this.set("isLoading", false);
         });
     };
     return FeedsViewModel;

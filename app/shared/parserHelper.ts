@@ -12,6 +12,7 @@ import imageCacheModule = require("ui/image-cache");
 import imageSource = require("image-source");
 import fileSystem = require("file-system");
 import {FrescoDrawee} from 'fresco/fresco';
+import {WebView} from 'ui/web-view';
 export interface NewsUrl {
     start?: number;
     length?: number;
@@ -22,26 +23,29 @@ export interface NewsUrl {
 export class ParserHelper {
 
 	public static structure: Array<any> = [];
-	public static relations: Array<any>;
+	public static relations: any;
 	private static captionIn = false;
 	private static urls: Array<NewsUrl>;
 
-	private static getContentSource(id: string, type: string) {
-		for (let index = 0; index < ParserHelper.relations.length; index++) {
-			let current = ParserHelper.relations[index];
-			if (current && type === "image" && current.primaryType === 'bbc.mobile.news.image' && current.content.id === id) {
-				if(Boolean(current.content.href)){
-					return current.content.href;
-				}
-			} else if (current && type === "video" && current.primaryType === 'bbc.mobile.news.video' && current.content.id === id) {
-				return current.content.externalId;
+	private static getImageSource(id: string) {
+		for (let index = 0; index < ParserHelper.relations.images.length; index++) {
+			let current = ParserHelper.relations.images[index];
+			if (current.primaryType === 'bbc.mobile.news.image' && current.content.id === id) {
+				return current.content.href;
+			}
+		}
+	}
+
+	private static getVideoSource(id: string) {
+
+		for (let index = 0; index < ParserHelper.relations.videos.length; index++) {
+			let current = ParserHelper.relations.videos[index];
+			if (current.primaryType === 'bbc.mobile.news.video' && current.content.id === id) {
+				return { id: current.content.externalId, image: current.content.relations[0].content.href };
 			}
 		}
 
-
 	}
-
-
 
 	private static handleStartElement(elementName: string, attr: any) {
 		let structureTop = ParserHelper.structure[ParserHelper.structure.length - 1];
@@ -72,13 +76,24 @@ export class ParserHelper {
 				let url = ParserHelper.urls[ParserHelper.urls.length - 1];
 				url.platform = attr.platform;
 				url.href = attr.href;
+				url.length = attr.href.length;
 				break;
 			case "image":
 				let image = new FrescoDrawee();
-				image.height = 150;
-				image.imageUri = ParserHelper.getContentSource(attr.id, "image");
-				image.stretch = enums.Stretch.aspectFill;
-				image.cssClass = "Image";
+				if (ParserHelper.getImageSource(attr.id).indexOf('line') > -1) {
+					//image.height = 150;
+					image.imageUri = ParserHelper.getImageSource(attr.id);
+					image.stretch = enums.Stretch.aspectFill;
+					//image.cssClass = "Image";
+					ParserHelper.structure.push(image);
+				} else {
+					image.height = 150;
+					image.imageUri = ParserHelper.getImageSource(attr.id);
+					image.stretch = enums.Stretch.aspectFill;
+					image.cssClass = "Image";
+					ParserHelper.structure.push(image);
+				}
+				
 				/*let image = new Image();
 				image.stretch = enums.Stretch.aspectFill;
 				image.height = 150;
@@ -114,22 +129,42 @@ export class ParserHelper {
 					}
 				}*/
 				//ParserHelper.structure.push(image);
-				ParserHelper.structure.push(image);
+				
 
 				break;
-			/*case "video":
-				let videoId = ParserHelper.getContentSource(attr.id, "video");
+			case "video":
+
+				let videoData = ParserHelper.getVideoSource(attr.id);
+
+
+				// VideoPlayer
 				let video = new Video();
 				video.cssClass = "Video";
-				video.height = 150;
-				ParserHelper.structure.push(video);
-				http.getJSON(`http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/format/json/mediaset/journalism-http-tablet/vpid/${videoId}/proto/http/transferformat/hls/`)
-						.then((res: any) => {
-							video.src = res.media[0].connection[0].href;
-							ParserHelper.structure.push(video);
-						})
-				break;*/
+				video.height = 300;
+
+
+				//WebView
+				let webview = new WebView();
+				webview.cssClass = "Video";
+				webview.height = 300;
+					
+					
+					
+				http.getJSON(`http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/format/json/mediaset/journalism-http-tablet/vpid/${videoData.id}/proto/http/transferformat/hls/`)
+					.then((res: any) => {
+						video.src = res.media[0].connection[0].href;
+						webview.src = `<video width='100%' poster="${videoData.image}" controls>
+					<source src='${res.media[0].connection[0].href}' >
+					</video>`
+				
+					ParserHelper.structure.push(webview); // not working 
+					//	ParserHelper.structure.push(video);
+					})
+
+
+				break;
 			case "link":
+
 				if (!ParserHelper.urls) {
 					ParserHelper.urls = [];
 				}
@@ -221,8 +256,12 @@ export class ParserHelper {
 				(<StackLayout>ParserHelper.structure[ParserHelper.structure.length - 1]).addChild(image);
 				break;
 			/*case "video":
+				let webview: WebView = ParserHelper.structure.pop();
+				(<StackLayout>ParserHelper.structure[ParserHelper.structure.length - 1]).addChild(webview);
+				
 				let video: Video = ParserHelper.structure.pop();
 				(<StackLayout>ParserHelper.structure[ParserHelper.structure.length - 1]).addChild(video);
+				
 				break;*/
             case "italic":
             case "bold":

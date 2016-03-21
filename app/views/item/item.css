@@ -1,9 +1,17 @@
 
-.Paragraph
-, .List
-, .Header
-, .Crosshead
-, Image
+.Paragraph{
+    margin-bottom: 10;
+}
+.List{
+    margin-bottom: 10;
+}
+.Header{
+    margin-bottom: 10;
+}
+ .Crosshead{
+    margin-bottom: 10;
+}
+.Image
 {
     margin-bottom: 10;
 }
@@ -31,5 +39,6 @@
     padding-top: 5;
 }
 .Video{
+    width: 100%;
     margin-bottom: 10;
 }

@@ -12,35 +12,42 @@ export class FeedsViewModel extends Observable {
 		this.set("isLoading", false);
 	}
 
-	public getNews() {
+	public getNews(): Promise<any> {
 		this.set("isLoading", true);
-		http.getJSON('http://trevor-producer-cdn.api.bbci.co.uk/content/cps/news/world')
-			.then((response: any) => {
-				let items = response.relations.map(item => {
-					let feed = {
-						id: item.content.id,
-						title: item.content.shortName,
-						image: null,
-						category: null,
-						lastUpdated: item.content.lastUpdated
-					};
-					item.content.relations.forEach((element: any) => {
+		return new Promise((resolve, reject) => {
+			http.getJSON('http://trevor-producer-cdn.api.bbci.co.uk/content/cps/news/world')
+				.then((response: any) => {
+					let items = response.relations.map(item => {
+						let feed = {
+							id: item.content.id,
+							title: item.content.shortName,
+							image: null,
+							category: null,
+							lastUpdated: item.content.lastUpdated
+						};
+						item.content.relations.forEach((element: any) => {
 
-						if (element.primaryType === "bbc.mobile.news.image" && element.secondaryType === "bbc.mobile.news.placement.index") {
-							feed.image = element.content.href;
-					}
-						else if (element.primaryType === "bbc.mobile.news.collection") {
-							feed.category = {
-								id: element.content.id,
-								name: element.content.name
-							};
-						}
-					})
-					return feed;
-				});
-				this.set("feeds", items);
-				this.set("isLoading", false);
-			})
+							if (element.primaryType === "bbc.mobile.news.image" && element.secondaryType === "bbc.mobile.news.placement.index") {
+								feed.image = element.content.href;
+							}
+							else if (element.primaryType === "bbc.mobile.news.collection") {
+								feed.category = {
+									id: element.content.id,
+									name: element.content.name
+								};
+							}
+						})
+						return feed;
+					});
+					resolve();
+					this.set("feeds", items);
+					this.set("isLoading", false);
+				}, (err) => {
+					reject(err);
+				})
+		})
+
+
 	}
 }
 
@@ -57,7 +64,7 @@ application.resources = {
 		//cache.invalid = defaultNotFoundImageSource;
 		cache.placeholder = defaultImageSource;
 		cache.maxRequests = 5;
-	//	cache.enableDownload();
+		//	cache.enableDownload();
 		let imgSource;
 		// Try to read the image from the cache
 		let image = cache.get(url);

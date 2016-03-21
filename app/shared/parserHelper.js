@@ -6,20 +6,26 @@ var enums = require("ui/enums");
 var span_1 = require("text/span");
 var color_1 = require("color");
 var formatted_string_1 = require("text/formatted-string");
+var http = require('http');
+var nativescript_videoplayer_1 = require('nativescript-videoplayer');
 var fresco_1 = require('fresco/fresco');
+var web_view_1 = require('ui/web-view');
 var ParserHelper = (function () {
     function ParserHelper() {
     }
-    ParserHelper.getContentSource = function (id, type) {
-        for (var index = 0; index < ParserHelper.relations.length; index++) {
-            var current = ParserHelper.relations[index];
-            if (current && type === "image" && current.primaryType === 'bbc.mobile.news.image' && current.content.id === id) {
-                if (Boolean(current.content.href)) {
-                    return current.content.href;
-                }
+    ParserHelper.getImageSource = function (id) {
+        for (var index = 0; index < ParserHelper.relations.images.length; index++) {
+            var current = ParserHelper.relations.images[index];
+            if (current.primaryType === 'bbc.mobile.news.image' && current.content.id === id) {
+                return current.content.href;
             }
-            else if (current && type === "video" && current.primaryType === 'bbc.mobile.news.video' && current.content.id === id) {
-                return current.content.externalId;
+        }
+    };
+    ParserHelper.getVideoSource = function (id) {
+        for (var index = 0; index < ParserHelper.relations.videos.length; index++) {
+            var current = ParserHelper.relations.videos[index];
+            if (current.primaryType === 'bbc.mobile.news.video' && current.content.id === id) {
+                return { id: current.content.externalId, image: current.content.relations[0].content.href };
             }
         }
     };
@@ -52,13 +58,24 @@ var ParserHelper = (function () {
                 var url = ParserHelper.urls[ParserHelper.urls.length - 1];
                 url.platform = attr.platform;
                 url.href = attr.href;
+                url.length = attr.href.length;
                 break;
             case "image":
                 var image = new fresco_1.FrescoDrawee();
-                image.height = 150;
-                image.imageUri = ParserHelper.getContentSource(attr.id, "image");
-                image.stretch = enums.Stretch.aspectFill;
-                image.cssClass = "Image";
+                if (ParserHelper.getImageSource(attr.id).indexOf('line') > -1) {
+                    //image.height = 150;
+                    image.imageUri = ParserHelper.getImageSource(attr.id);
+                    image.stretch = enums.Stretch.aspectFill;
+                    //image.cssClass = "Image";
+                    ParserHelper.structure.push(image);
+                }
+                else {
+                    image.height = 150;
+                    image.imageUri = ParserHelper.getImageSource(attr.id);
+                    image.stretch = enums.Stretch.aspectFill;
+                    image.cssClass = "Image";
+                    ParserHelper.structure.push(image);
+                }
                 /*let image = new Image();
                 image.stretch = enums.Stretch.aspectFill;
                 image.height = 150;
@@ -94,20 +111,25 @@ var ParserHelper = (function () {
                     }
                 }*/
                 //ParserHelper.structure.push(image);
-                ParserHelper.structure.push(image);
                 break;
-            /*case "video":
-                let videoId = ParserHelper.getContentSource(attr.id, "video");
-                let video = new Video();
-                video.cssClass = "Video";
-                video.height = 150;
-                ParserHelper.structure.push(video);
-                http.getJSON(`http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/format/json/mediaset/journalism-http-tablet/vpid/${videoId}/proto/http/transferformat/hls/`)
-                        .then((res: any) => {
-                            video.src = res.media[0].connection[0].href;
-                            ParserHelper.structure.push(video);
-                        })
-                break;*/
+            case "video":
+                var videoData_1 = ParserHelper.getVideoSource(attr.id);
+                // VideoPlayer
+                var video_1 = new nativescript_videoplayer_1.Video();
+                video_1.cssClass = "Video";
+                video_1.height = 300;
+                //WebView
+                var webview_1 = new web_view_1.WebView();
+                webview_1.cssClass = "Video";
+                webview_1.height = 300;
+                http.getJSON("http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/format/json/mediaset/journalism-http-tablet/vpid/" + videoData_1.id + "/proto/http/transferformat/hls/")
+                    .then(function (res) {
+                    video_1.src = res.media[0].connection[0].href;
+                    webview_1.src = "<video width='100%' poster=\"" + videoData_1.image + "\" controls>\n\t\t\t\t\t<source src='" + res.media[0].connection[0].href + "' >\n\t\t\t\t\t</video>";
+                    ParserHelper.structure.push(webview_1); // not working 
+                    //	ParserHelper.structure.push(video);
+                });
+                break;
             case "link":
                 if (!ParserHelper.urls) {
                     ParserHelper.urls = [];
@@ -201,8 +223,12 @@ var ParserHelper = (function () {
                 ParserHelper.structure[ParserHelper.structure.length - 1].addChild(image);
                 break;
             /*case "video":
+                let webview: WebView = ParserHelper.structure.pop();
+                (<StackLayout>ParserHelper.structure[ParserHelper.structure.length - 1]).addChild(webview);
+                
                 let video: Video = ParserHelper.structure.pop();
                 (<StackLayout>ParserHelper.structure[ParserHelper.structure.length - 1]).addChild(video);
+                
                 break;*/
             case "italic":
             case "bold":

@@ -9,8 +9,10 @@
     font-weight: bold;
 }
 
-
 .Category
 {
     color: #F44336;
+}
+Repeater{
+     opacity: 0;
 }

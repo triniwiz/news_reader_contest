@@ -10,7 +10,7 @@ var ItemViewModel = (function (_super) {
         this.set("isLoading", false);
         this.set("item", {});
         this.set("id", id);
-        this.set("title", title);
+        this.set("title", title | "");
     }
     ItemViewModel.prototype.load = function () {
         var _this = this;
@@ -19,7 +19,13 @@ var ItemViewModel = (function (_super) {
             http.getJSON("http://trevor-producer-cdn.api.bbci.co.uk/content" + _this.get("id"))
                 .then(function (response) {
                 var parser = new xml.XmlParser((parserHelper_1.ParserHelper.startParsing), function (error) { console.log(error); });
-                parserHelper_1.ParserHelper.relations = response.relations;
+                var images = response.relations.filter(function (item) {
+                    return item.primaryType === 'bbc.mobile.news.image';
+                });
+                var videos = response.relations.filter(function (item) {
+                    return item.primaryType === 'bbc.mobile.news.video';
+                });
+                parserHelper_1.ParserHelper.relations = { images: images, videos: videos };
                 parser.parse(response.body);
                 _this.set("title", response.shortName);
                 _this.set("isLoading", false);

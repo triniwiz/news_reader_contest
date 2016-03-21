@@ -1,10 +1,10 @@
-<Page xmlns:Card="nativescript-cardview" xmlns:f="fresco/fresco" xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo">
+<Page xmlns:Card="nativescript-cardview" xmlns:f="fresco/fresco" xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" navigatedTo="navigatedTo">
   <Page.actionBar>
     <ActionBar title="Feeds" />
   </Page.actionBar>
-  <GridLayout>
+  <GridLayout >
     <ScrollView>
-      <Repeater items="{{ feeds }}">
+      <Repeater items="{{ feeds }}" id="repeater">
         <Repeater.itemTemplate>
           <StackLayout tap="goToItem">
             <Card:CardView margin="10">
@@ -23,6 +23,6 @@
         </Repeater.itemTemplate>
       </Repeater>
     </ScrollView>
-    <!--<ActivityIndicator busy="{{ isLoading }}" />-->
+    <ActivityIndicator  busy="{{ isLoading }}" />
   </GridLayout>
 </Page>
